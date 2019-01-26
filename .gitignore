@@ -1,3 +1,5 @@
 particle_system
 objs/
 *.o
+.vscode/
+libs/

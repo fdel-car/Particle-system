@@ -5,13 +5,13 @@ CC := clang++
 OS := $(shell uname)
 CFLAGS := -Wall -Wextra -Werror -Wno-missing-braces
 ignore-warnings : CFLAGS := -w
-OPEN_CL :=
-HEADERS := -I./includes
+LIBS :=
+HEADERS := -I./includes/ -I./libs/includes/
 
 ifeq ($(OS),Darwin)
-	OPEN_CL += -framework OpenCL
+	LIBS += -framework OpenCL
 else
-	OPEN_CL += -lOpenCL
+	LIBS += -lOpenCL -lsfml-graphics -lsfml-window -lsfml-system -lGL -lglfw -ldl
 	HEADERS += -I/opt/amdgpu-pro/include/
 endif
 
@@ -26,6 +26,7 @@ CLEAR_LINE := \033[2K
 MOVE_CURSOR_UP := \033[1A
 
 SRCS := $(shell find $(SRCS_DIR) -name *.cpp)
+SRCS += ./srcs/glad/glad.cpp
 OBJS := $(patsubst $(SRCS_DIR)%.cpp,$(OBJS_DIR)%.o,$(SRCS))
 
 all: $(OBJS_DIR) $(TARGET)
@@ -34,13 +35,20 @@ ignore-warnings: all
 
 $(OBJS_DIR):
 	@mkdir -p ./objs
+	@mkdir -p ./objs/glad
 
 $(TARGET): $(OBJS)
-	@$(CC) $(CFLAGS) -o $@ $^ $(OPEN_CL)
+	@$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
 	@echo "$(CYAN)Successfully compiled $(TARGET).$(RESET)"
 
 $(OBJS_DIR)/%.o: $(SRCS_DIR)/%.cpp
 	@$(CC) $(CFLAGS) -c $^ -o $@ $(HEADERS)
+
+install:
+	./install.sh
+
+uninstall:
+	./uninstall.sh
 
 clean:
 	@rm -rf objs/
@@ -51,4 +59,4 @@ fclean: clean
 re: fclean
 	@make all
 
-.PHONY: all clean fclean re ignore-warnings
+.PHONY: all clean fclean re ignore-warnings install uninstall
