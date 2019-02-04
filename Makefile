@@ -3,13 +3,14 @@ SRCS_DIR := ./srcs
 OBJS_DIR := ./objs
 CC := clang++
 OS := $(shell uname)
-CFLAGS := -Wall -Wextra -Werror -Wno-missing-braces
+CFLAGS := -Wall -Wextra -Werror -Wno-missing-braces -std=c++11
 ignore-warnings : CFLAGS := -w
 LIBS :=
 HEADERS := -I./includes/ -I./libs/includes/
 
 ifeq ($(OS),Darwin)
-	LIBS += -framework OpenCL
+	LIBS += -framework OpenCL `pkg-config --libs glfw3`
+	HEADERS += `pkg-config --cflags glfw3` `pkg-config --cflags glm`
 else
 	LIBS += -lOpenCL -lsfml-graphics -lsfml-window -lsfml-system -lGL -lglfw -ldl
 	HEADERS += -I/opt/amdgpu-pro/include/

@@ -1,4 +1,4 @@
-#include "ParticleSystem.hpp"
+#include "Renderer.hpp"
 
 int main() {
   // std::vector<cl::Platform> platforms;
@@ -10,35 +10,12 @@ int main() {
   //   std::cout << device.getInfo<CL_DEVICE_VENDOR>() << std::endl;
   //   std::cout << device.getInfo<CL_DEVICE_VERSION>() << std::endl;
   // }
-  if (!glfwInit()) throw std::runtime_error("Failed to initialize GLFW");
-  glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-#ifdef __APPLE__
-  glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-#endif
-  glfwWindowHint(GLFW_FOCUSED, GL_TRUE);
-  glfwWindowHint(GLFW_SAMPLES, 4);
+  Renderer renderer;
 
-  GLFWmonitor *_monitor = glfwGetPrimaryMonitor();
-  const GLFWvidmode *_mode = glfwGetVideoMode(_monitor);
-
-  GLFWwindow *_window =
-      glfwCreateWindow(1280, 720, "Particle system", nullptr, nullptr);
-  if (!_window) {
-    glfwTerminate();
-    throw std::runtime_error("Failed to create windows GLFW");
+  bool windowShouldClose = false;
+  while (!windowShouldClose) {
+    glfwPollEvents();
   }
-  glfwSetWindowPos(_window, (_mode->width / 2), (_mode->height / 2));
-  int _width, _height;
-  glfwGetFramebufferSize(_window, &_width, &_height);
-  glfwMakeContextCurrent(_window);
-  if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-    throw std::runtime_error("Failed to initialize GLAD");
-  glViewport(0, 0, _width, _height);
-  // glfwSetKeyCallback(_window, keyCallback);
-  // glfwSetCursorPosCallback(_window, mouseCallback);
 
   return EXIT_SUCCESS;
 }
