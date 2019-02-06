@@ -14,6 +14,8 @@ class Renderer {
   Renderer(void);
   virtual ~Renderer(void);
 
+  GLFWwindow *getWindow(void) const;
+
  private:
   int _width, _height;
 

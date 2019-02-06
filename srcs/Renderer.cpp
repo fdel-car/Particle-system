@@ -30,7 +30,12 @@ Renderer::Renderer(void) {
   // glfwSetCursorPosCallback(_window, mouseCallback);
 }
 
-Renderer::~Renderer(void) {}
+Renderer::~Renderer(void) {
+  glfwDestroyWindow(_window);
+  glfwTerminate();
+}
+
+GLFWwindow *Renderer::getWindow(void) const { return _window; }
 
 std::array<bool, 1024> Renderer::inputs = std::array<bool, 1024>();
 
