@@ -5,11 +5,11 @@
 #include <sstream>
 #include <string>
 
-#define CL_USE_DEPRECATED_OPENCL_1_2_APIS
-#ifdef __APPLE__
-#include <OpenCL/cl.h>
+#if defined(__APPLE__) || defined(MACOSX)
+#include <OpenGL/OpenGL.h>
+#include <OpenCL/cl.hpp>
 #else
-#include <CL/cl.h>
+#include <CL/cl.hpp>
 #endif
 
 #include <glad/glad.h>

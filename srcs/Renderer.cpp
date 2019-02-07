@@ -11,16 +11,16 @@ Renderer::Renderer(void) {
 #endif
   glfwWindowHint(GLFW_FOCUSED, GL_TRUE);
   glfwWindowHint(GLFW_SAMPLES, 4);
-  _monitor = glfwGetPrimaryMonitor();
-  _mode = glfwGetVideoMode(_monitor);
+  GLFWmonitor *monitor = glfwGetPrimaryMonitor();
+  const GLFWvidmode *mode = glfwGetVideoMode(monitor);
   _window =
       glfwCreateWindow(WIDTH, HEIGHT, "Particle system", nullptr, nullptr);
   if (!_window) {
     glfwTerminate();
     throw std::runtime_error("Failed to create windows GLFW");
   }
-  glfwSetWindowPos(_window, (_mode->width / 2) - (WIDTH / 2),
-                   (_mode->height / 2) - (HEIGHT / 2));
+  glfwSetWindowPos(_window, (mode->width / 2) - (WIDTH / 2),
+                   (mode->height / 2) - (HEIGHT / 2));
   glfwGetFramebufferSize(_window, &_width, &_height);
   glfwMakeContextCurrent(_window);
   if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))

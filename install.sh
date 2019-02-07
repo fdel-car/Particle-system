@@ -23,3 +23,5 @@ if [[ ! -d "./srcs/glad" && ! -d "./includes/glad" && ! -d "./includes/KHR" ]]; 
     mv tmp-glad/include/KHR/khrplatform.h ./includes/KHR
     rm -rf tmp-glad
 fi
+
+# TODO: fetch the C++ bindings for OpenCL => OpenCL/cl.hpp

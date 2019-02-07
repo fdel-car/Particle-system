@@ -9,8 +9,8 @@ LIBS :=
 HEADERS := -I./includes/ -I./libs/includes/
 
 ifeq ($(OS),Darwin)
-	LIBS += -framework OpenCL `pkg-config --libs glfw3`
-	HEADERS += `pkg-config --cflags glfw3` `pkg-config --cflags glm`
+	LIBS += -framework OpenGL -framework OpenCL `pkg-config --libs glfw3`
+	HEADERS += -I/opt/X11/include `pkg-config --cflags glfw3` `pkg-config --cflags glm`
 else
 	LIBS += -lOpenCL -lsfml-graphics -lsfml-window -lsfml-system -lGL -lglfw -ldl
 	HEADERS += -I/opt/amdgpu-pro/include/

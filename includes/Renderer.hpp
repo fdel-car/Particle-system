@@ -20,8 +20,6 @@ class Renderer {
   int _width, _height;
 
   GLFWwindow *_window = nullptr;
-  GLFWmonitor *_monitor = nullptr;
-  const GLFWvidmode *_mode = nullptr;
 
   Renderer(Renderer const &src);
 
