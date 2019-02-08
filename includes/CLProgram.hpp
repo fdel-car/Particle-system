@@ -11,6 +11,7 @@ class CLProgram {
   cl::Platform _defaultPlatform;
   cl::Device _defaultDevice;
   cl::Context _context;
+  cl::CommandQueue _queue;
 
   CLProgram(CLProgram const &src);
 

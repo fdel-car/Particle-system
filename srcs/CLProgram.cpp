@@ -48,6 +48,7 @@ CLProgram::CLProgram(void) {
 #endif
 
   _context = cl::Context(_defaultDevice, properties);
+  _queue = cl::CommandQueue(_context, _defaultDevice);
 }
 
 CLProgram::~CLProgram(void) {}

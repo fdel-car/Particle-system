@@ -1,6 +1,7 @@
 #include "CLProgram.hpp"
 #include "Renderer.hpp"
 #include "ShaderProgram.hpp"
+#include "Tools.hpp"
 
 int main() {
   try {
@@ -10,6 +11,8 @@ int main() {
                                 "./srcs/shaders/default.fs");
 
     CLProgram clProgram;
+
+    std::cout << Tools::readFile("init.cl") << std::endl;
 
     float vertices[] = {-0.5f, -0.5f, 0.0f, 0.5f, -0.5f,
                         0.0f,  0.0f,  0.5f, 0.0f};
