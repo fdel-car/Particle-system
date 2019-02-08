@@ -1,5 +1,6 @@
 #pragma once
 
+#include <fstream>
 #include <iostream>
 #include <string>
 
@@ -8,7 +9,7 @@ class Tools {
   Tools(void);
   virtual ~Tools(void);
 
-  static std::string const &readFile(std::string const &filePath);
+  static std::string const readFile(std::string const &filePath);
 
  private:
   Tools(Tools const &src);

@@ -4,6 +4,10 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <vector>
+
+#define CL_HPP_ENABLE_EXCEPTIONS
+#define CL_HPP_TARGET_OPENCL_VERSION 120
 
 #if defined(__APPLE__) || defined(MACOSX)
 #include <OpenGL/OpenGL.h>

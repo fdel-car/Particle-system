@@ -1,6 +1,13 @@
+# Libs
+srcs/glad/
+includes/glad/
+includes/KHR/
+includes/OpenCL/
+
+# Binaries
 objs/
 *.o
-.vscode/
-libs/
-includes/OpenCL/
 particle_system
+
+# Settings
+.vscode/

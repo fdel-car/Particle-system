@@ -1,6 +1,6 @@
-#include "Renderer.hpp"
+#include "GLRenderer.hpp"
 
-Renderer::Renderer(void) {
+GLRenderer::GLRenderer(void) {
   if (!glfwInit()) throw std::runtime_error("Failed to initialize GLFW");
   glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -30,17 +30,17 @@ Renderer::Renderer(void) {
   // glfwSetCursorPosCallback(_window, mouseCallback);
 }
 
-Renderer::~Renderer(void) {
+GLRenderer::~GLRenderer(void) {
   glfwDestroyWindow(_window);
   glfwTerminate();
 }
 
-GLFWwindow *Renderer::getWindow(void) const { return _window; }
+GLFWwindow *GLRenderer::getWindow(void) const { return _window; }
 
-std::array<bool, 1024> Renderer::inputs = std::array<bool, 1024>();
+std::array<bool, 1024> GLRenderer::inputs = std::array<bool, 1024>();
 
-void Renderer::_keyCallback(GLFWwindow *window, int key, int scancode,
-                            int action, int mods) {
+void GLRenderer::_keyCallback(GLFWwindow *window, int key, int scancode,
+                              int action, int mods) {
   if (action == GLFW_PRESS || action == GLFW_RELEASE) {
     inputs[key] = GLFW_PRESS ? true : false;
   }

@@ -7,12 +7,12 @@
 
 #include <array>
 
-class Renderer {
+class GLRenderer {
  public:
   static std::array<bool, 1024> inputs;
 
-  Renderer(void);
-  virtual ~Renderer(void);
+  GLRenderer(void);
+  virtual ~GLRenderer(void);
 
   GLFWwindow *getWindow(void) const;
 
@@ -21,10 +21,10 @@ class Renderer {
 
   GLFWwindow *_window = nullptr;
 
-  Renderer(Renderer const &src);
+  GLRenderer(GLRenderer const &src);
 
   static void _keyCallback(GLFWwindow *window, int key, int scancode,
                            int action, int mods);
 
-  Renderer &operator=(Renderer const &rhs);
+  GLRenderer &operator=(GLRenderer const &rhs);
 };
