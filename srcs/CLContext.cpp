@@ -17,7 +17,17 @@ CLContext::CLContext(GLRenderer const &gl) : _gl(gl) {
     throw std::runtime_error("OpenGL / OpenCL interoperability not supported.");
   }
 
-#if defined(__APPLE__) || defined(MACOSX)
+#if defined(_WIN32)
+  // Windows
+  cl_context_properties properties[] = {
+      CL_GL_CONTEXT_KHR,
+      (cl_context_properties)glfwGetWGLContext(_gl.getWindow()),
+      CL_WGL_HDC_KHR,
+      (cl_context_properties)GetDC(glfwGetWin32Window(_gl.getWindow())),
+      CL_CONTEXT_PLATFORM,
+      (cl_context_properties)_defaultPlatform(),
+      0};
+#elif defined(__APPLE__) || defined(MACOSX)
   // OS X
   CGLContextObj kCGLContext = CGLGetCurrentContext();
   CGLShareGroupObj kCGLShareGroup = CGLGetShareGroup(kCGLContext);
@@ -25,10 +35,10 @@ CLContext::CLContext(GLRenderer const &gl) : _gl(gl) {
       CL_CONTEXT_PROPERTY_USE_CGL_SHAREGROUP_APPLE,
       (cl_context_properties)kCGLShareGroup, 0};
 #else
-  // Linux and Windows
+  // Linux
   cl_context_properties properties[] = {
       CL_GL_CONTEXT_KHR,
-      (cl_context_properties)glfwGetGLXContext(gl.getWindow()),
+      (cl_context_properties)glfwGetGLXContext(_gl.getWindow()),
       CL_GLX_DISPLAY_KHR,
       (cl_context_properties)glfwGetX11Display(),
       CL_CONTEXT_PLATFORM,
@@ -50,8 +60,18 @@ CLContext::CLContext(GLRenderer const &gl) : _gl(gl) {
 
 CLContext::~CLContext(void) {}
 
-void CLContext::addSource(std::string const &src) {
-  _sources.push_back(std::make_pair(src.c_str(), src.size() + 1));
+void CLContext::addSource(std::string const &fileName) {
+  FILE *fp = fopen(("./srcs/kernels/" + fileName).c_str(), "rb");
+
+  fseek(fp, 0, SEEK_END);
+  long size = ftell(fp);
+  rewind(fp);
+  char *src = (char *)malloc(size + 1);  // Possible leak here
+  src[size] = '\0';
+  fread(src, sizeof(char), size, fp);
+  fclose(fp);
+
+  _sources.push_back(std::make_pair(src, size));
 }
 
 void CLContext::buildProgram(void) {
@@ -70,10 +90,12 @@ void CLContext::buildProgram(void) {
 void CLContext::initMemory(GLuint const &VBO, size_t numParticles) {
   cl_int err = 0;
   _gl_buffers.push_back(cl::BufferGL(_context, CL_MEM_READ_WRITE, VBO, &err));
-  std::cout << CLContext::getErrorString(err) << std::endl;
+  std::cout << "Get CL buffer from GL buffer: "
+            << CLContext::getErrorString(err) << std::endl;
 
   cl::Kernel kernel(_program, "initSphere", &err);
-  std::cout << CLContext::getErrorString(err) << std::endl;
+  std::cout << "Kernel creation: " << CLContext::getErrorString(err)
+            << std::endl;
 
   err = kernel.setArg(0, _gl_buffers[0]);
   std::cout << "SetArg: " << CLContext::getErrorString(err) << std::endl;
@@ -83,7 +105,8 @@ void CLContext::initMemory(GLuint const &VBO, size_t numParticles) {
             << std::endl;
   err = _queue.enqueueNDRangeKernel(kernel, cl::NullRange,
                                     cl::NDRange(numParticles), cl::NullRange);
-  std::cout << CLContext::getErrorString(err) << std::endl;
+  std::cout << "Enqueue NDR Range: " << CLContext::getErrorString(err)
+            << std::endl;
   err = _queue.finish();
   std::cout << "Finish: " << CLContext::getErrorString(err) << std::endl;
   err = _queue.enqueueReleaseGLObjects(&_gl_buffers);

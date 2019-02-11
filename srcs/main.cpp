@@ -1,7 +1,6 @@
 #include "CLContext.hpp"
 #include "GLRenderer.hpp"
 #include "ShaderProgram.hpp"
-#include "Tools.hpp"
 
 int main() {
   size_t numParticles = 4;
@@ -10,7 +9,7 @@ int main() {
     ShaderProgram shaderProgram("./srcs/shaders/default.vs",
                                 "./srcs/shaders/default.fs");
     CLContext cl(gl);
-    cl.addSource(Tools::readFile("./srcs/kernels/init.cl"));
+    cl.addSource("init.cl");
     cl.buildProgram();
 
     GLuint VAO, VBO;
@@ -47,10 +46,10 @@ int main() {
       glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
       glClear(GL_COLOR_BUFFER_BIT);
 
-      // glBindVertexArray(VAO);
-      // glUseProgram(shaderProgram.getID());
-      // glDrawArrays(GL_POINTS, 0, numParticles);
-      // glBindVertexArray(0);
+      glBindVertexArray(VAO);
+      glUseProgram(shaderProgram.getID());
+      glDrawArrays(GL_POINTS, 0, numParticles);
+      glBindVertexArray(0);
 
       glfwSwapBuffers(gl.getWindow());
     }

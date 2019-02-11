@@ -9,7 +9,7 @@ class CLContext {
   CLContext(GLRenderer const &gl);
   virtual ~CLContext(void);
 
-  void addSource(std::string const &src);
+  void addSource(std::string const &fileName);
   void buildProgram(void);
   void initMemory(GLuint const &VBO, size_t numParticles);
 

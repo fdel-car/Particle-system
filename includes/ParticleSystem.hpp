@@ -31,7 +31,7 @@
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
 
-// glm (math library)
+// GLM (math library)
 #include <glm/glm.hpp>
 #include <glm/gtc/epsilon.hpp>
 #include <glm/gtc/matrix_transform.hpp>
