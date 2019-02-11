@@ -2,18 +2,22 @@
 
 #include "ParticleSystem.hpp"
 
+class GLRenderer;
+
 class CLContext {
  public:
-  CLContext(void);
+  CLContext(GLRenderer const &gl);
   virtual ~CLContext(void);
 
   void addSource(std::string const &src);
   void buildProgram(void);
-  void initMemory(GLuint const &VBO);
-  cl::Context &getContext(void);
+  void initMemory(GLuint const &VBO, size_t numParticles);
 
   static std::string const getErrorString(cl_int const &error);
 
+ private:
+  std::vector<cl::Platform> _platforms;
+  std::vector<cl::Device> _devices;
   cl::Platform _defaultPlatform;
   cl::Device _defaultDevice;
   cl::Context _context;
@@ -21,10 +25,9 @@ class CLContext {
   cl::Program::Sources _sources;
   cl::Program _program;
   std::vector<cl::Memory> _gl_buffers;
+  GLRenderer const &_gl;
 
- private:
-  std::vector<cl::Device> _devices;
-
+  CLContext(void);
   CLContext(CLContext const &src);
 
   CLContext &operator=(CLContext const &rhs);

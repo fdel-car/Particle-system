@@ -12,7 +12,7 @@ ifeq ($(OS),Darwin)
 	LIBS += -framework OpenGL -framework OpenCL `pkg-config --libs glfw3`
 	HEADERS += -I/opt/X11/include `pkg-config --cflags glfw3` `pkg-config --cflags glm`
 else
-	LIBS += -lOpenCL -lsfml-graphics -lsfml-window -lsfml-system -lGL -lglfw -ldl
+	LIBS += -lOpenCL -lGL -lglfw -ldl
 	HEADERS += -I/opt/amdgpu-pro/include/
 endif
 

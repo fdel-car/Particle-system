@@ -1,9 +1,9 @@
 #include "CLContext.hpp"
+#include "GLRenderer.hpp"
 
-CLContext::CLContext(void) {
-  std::vector<cl::Platform> platforms;
-  cl::Platform::get(&platforms);
-  _defaultPlatform = platforms.front();
+CLContext::CLContext(GLRenderer const &gl) : _gl(gl) {
+  cl::Platform::get(&_platforms);
+  _defaultPlatform = _platforms.front();
   _defaultPlatform.getDevices(CL_DEVICE_TYPE_GPU, &_devices);
   _defaultDevice = _devices.front();
 
@@ -17,17 +17,7 @@ CLContext::CLContext(void) {
     throw std::runtime_error("OpenGL / OpenCL interoperability not supported.");
   }
 
-#if defined(_WIN32)
-  // Windows
-  cl_context_properties properties[] = {
-      CL_GL_CONTEXT_KHR,
-      (cl_context_properties)wglGetCurrentContext(),
-      CL_WGL_HDC_KHR,
-      (cl_context_properties)wglGetCurrentDC(),
-      CL_CONTEXT_PLATFORM,
-      (cl_context_properties)_defaultPlatform,
-      0};
-#elif defined(__APPLE__) || defined(MACOSX)
+#if defined(__APPLE__) || defined(MACOSX)
   // OS X
   CGLContextObj kCGLContext = CGLGetCurrentContext();
   CGLShareGroupObj kCGLShareGroup = CGLGetShareGroup(kCGLContext);
@@ -35,14 +25,14 @@ CLContext::CLContext(void) {
       CL_CONTEXT_PROPERTY_USE_CGL_SHAREGROUP_APPLE,
       (cl_context_properties)kCGLShareGroup, 0};
 #else
-  // Linux
+  // Linux and Windows
   cl_context_properties properties[] = {
       CL_GL_CONTEXT_KHR,
-      (cl_context_properties)glXGetCurrentContext(),
+      (cl_context_properties)glfwGetGLXContext(gl.getWindow()),
       CL_GLX_DISPLAY_KHR,
-      (cl_context_properties)glXGetCurrentDisplay(),
+      (cl_context_properties)glfwGetX11Display(),
       CL_CONTEXT_PLATFORM,
-      (cl_context_properties)_defaultPlatform,
+      (cl_context_properties)_defaultPlatform(),
       0};
 #endif
 
@@ -76,12 +66,30 @@ void CLContext::buildProgram(void) {
                              CLContext::getErrorString(err) + ").");
 }
 
-// void CLContext::initMemory(GLuint const &VBO) {
-//   _gl_buffers.push_back(
-//       cl::BufferGL(_context, CL_MEM_READ_WRITE, VBO, nullptr));
-// }
+// Weird unexpected pattern in the display, check that out!
+void CLContext::initMemory(GLuint const &VBO, size_t numParticles) {
+  cl_int err = 0;
+  _gl_buffers.push_back(cl::BufferGL(_context, CL_MEM_READ_WRITE, VBO, &err));
+  std::cout << CLContext::getErrorString(err) << std::endl;
 
-cl::Context &CLContext::getContext(void) { return _context; }
+  cl::Kernel kernel(_program, "initSphere", &err);
+  std::cout << CLContext::getErrorString(err) << std::endl;
+
+  err = kernel.setArg(0, _gl_buffers[0]);
+  std::cout << "SetArg: " << CLContext::getErrorString(err) << std::endl;
+
+  err = _queue.enqueueAcquireGLObjects(&_gl_buffers);
+  std::cout << "Acquire GL Obj: " << CLContext::getErrorString(err)
+            << std::endl;
+  err = _queue.enqueueNDRangeKernel(kernel, cl::NullRange,
+                                    cl::NDRange(numParticles), cl::NullRange);
+  std::cout << CLContext::getErrorString(err) << std::endl;
+  err = _queue.finish();
+  std::cout << "Finish: " << CLContext::getErrorString(err) << std::endl;
+  err = _queue.enqueueReleaseGLObjects(&_gl_buffers);
+  std::cout << "Release GL Obj: " << CLContext::getErrorString(err)
+            << std::endl;
+}
 
 bool CLContext::_isExtensionSupported(std::string const &reqExt,
                                       std::string const &allExt) const {

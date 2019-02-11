@@ -25,6 +25,7 @@ GLRenderer::GLRenderer(void) {
   glfwMakeContextCurrent(_window);
   if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     throw std::runtime_error("Failed to initialize GLAD");
+  printf("OpenGL %d.%d\n", GLVersion.major, GLVersion.minor);
   glViewport(0, 0, _width, _height);
   glfwSetKeyCallback(_window, _keyCallback);
   // glfwSetCursorPosCallback(_window, mouseCallback);
