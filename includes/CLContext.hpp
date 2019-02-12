@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ParticleSystem.hpp"
+#include "Headers.hpp"
 
 class GLRenderer;
 

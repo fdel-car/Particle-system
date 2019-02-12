@@ -98,7 +98,9 @@ void CLContext::initMemory(GLuint const &VBO, size_t numParticles) {
             << std::endl;
 
   err = kernel.setArg(0, _gl_buffers[0]);
-  std::cout << "SetArg: " << CLContext::getErrorString(err) << std::endl;
+  std::cout << "SetArg 1: " << CLContext::getErrorString(err) << std::endl;
+  err = kernel.setArg(1, numParticles);
+  std::cout << "SetArg 2: " << CLContext::getErrorString(err) << std::endl;
 
   err = _queue.enqueueAcquireGLObjects(&_gl_buffers);
   std::cout << "Acquire GL Obj: " << CLContext::getErrorString(err)

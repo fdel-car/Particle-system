@@ -1,38 +1,27 @@
 #pragma once
 
-#include <fstream>
-#include <iostream>
-#include <sstream>
-#include <string>
-#include <vector>
+#include "CLContext.hpp"
+#include "Camera.hpp"
+#include "GLRenderer.hpp"
 
-// OpenCL
-#define CL_HPP_ENABLE_EXCEPTIONS
-#define CL_HPP_TARGET_OPENCL_VERSION 120
-#define CL_USE_DEPRECATED_OPENCL_1_2_APIS
+class ParticleSystem {
+ public:
+  ParticleSystem(GLRenderer &gl, CLContext &cl, size_t numParticles);
 
-#if defined(__APPLE__) || defined(MACOSX)
-#include <OpenCL/cl.hpp>
-#else
-#include <CL/cl.hpp>
-#endif
+  virtual ~ParticleSystem(void);
 
-// OpenGL
-#include <glad/glad.h>
+  void runLoop(void);
 
-#ifdef _WIN32
-#define GLFW_EXPOSE_NATIVE_WIN32
-#define GLFW_EXPOSE_NATIVE_WGL
-#elif __linux__
-#define GLFW_EXPOSE_NATIVE_X11
-#define GLFW_EXPOSE_NATIVE_GLX
-#endif
+ private:
+  GLRenderer &_gl;
+  CLContext &_cl;
+  size_t _numParticles;
+  Camera *_camera = nullptr;
 
-#include <GLFW/glfw3.h>
-#include <GLFW/glfw3native.h>
+  void _init(void);
 
-// GLM (math library)
-#include <glm/glm.hpp>
-#include <glm/gtc/epsilon.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
+  ParticleSystem(void);
+  ParticleSystem(ParticleSystem const &src);
+
+  ParticleSystem &operator=(ParticleSystem const &rhs);
+};
