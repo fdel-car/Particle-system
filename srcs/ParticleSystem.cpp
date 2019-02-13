@@ -30,10 +30,10 @@ void ParticleSystem::runLoop(void) {
   while (!glfwWindowShouldClose(_gl.getWindow())) {
     double currentTime = glfwGetTime();
     nbFrames++;
-    if (currentTime - lastTime >= 0.25) {
-      glfwSetWindowTitle(_gl.getWindow(), std::to_string(nbFrames * 4).c_str());
+    if (currentTime - lastTime >= 1.0) {
+      glfwSetWindowTitle(_gl.getWindow(), std::to_string(nbFrames).c_str());
       nbFrames = 0;
-      lastTime += 0.25;
+      lastTime += 1.0;
     }
 
     glfwPollEvents();

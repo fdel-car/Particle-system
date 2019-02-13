@@ -1,4 +1,4 @@
-__kernel void initSphere(__global float4 *particles, size_t numParticles) {
+__kernel void initSphere(__global float4 *particles, unsigned long numParticles) {
     int idx = get_global_id(0);
     global float4 *pos = &(particles[idx]);
 
