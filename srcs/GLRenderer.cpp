@@ -23,6 +23,7 @@ GLRenderer::GLRenderer(void) {
                    (mode->height / 2) - (HEIGHT / 2));
   glfwGetFramebufferSize(_window, &_width, &_height);
   glfwMakeContextCurrent(_window);
+  // glfwSwapInterval(0);  // Remove 60 fps limit from glfw
   if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     throw std::runtime_error("Failed to initialize GLAD");
   printf("OpenGL %d.%d\n", GLVersion.major, GLVersion.minor);
@@ -37,7 +38,6 @@ GLRenderer::GLRenderer(void) {
 
 GLRenderer::~GLRenderer(void) {
   if (_shaderProgram) delete _shaderProgram;
-  glfwDestroyWindow(_window);
   glfwTerminate();
 }
 
@@ -83,6 +83,14 @@ void GLRenderer::displayParticles(size_t numParticles, glm::mat4 const &VP) {
   deltaTime = currentTime - lastTime;
   lastTime = currentTime;
 
+  // Update FPS counter
+  _nbFrames++;
+  if (currentTime - lastFPSUpdateTime >= 1.0) {
+    glfwSetWindowTitle(_window, std::to_string(_nbFrames).c_str());
+    _nbFrames = 0;
+    lastFPSUpdateTime += 1.0;
+  }
+
   // Update inputs
   for (auto &key : _keyboardMap) key.second.prevFrame = key.second.currFrame;
 
@@ -98,7 +106,7 @@ void GLRenderer::switchCursorMode(bool debugMode) const {
                    debugMode ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
 }
 
-glm::vec2 GLRenderer::_mousePos = glm::vec2();
+glm::vec2 GLRenderer::_mousePos = glm::vec2(0.0f);
 
 void GLRenderer::_mouseCallback(GLFWwindow *window, double xPos, double yPos) {
   _mousePos.x = xPos;

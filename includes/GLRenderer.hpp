@@ -18,6 +18,7 @@ class GLRenderer {
 
   GLuint VAO, VBO;
   double deltaTime, currentTime, lastTime;
+  double lastFPSUpdateTime;
 
   virtual ~GLRenderer(void);
 
@@ -33,6 +34,7 @@ class GLRenderer {
   int getHeight(void) const;
 
  private:
+  int _nbFrames = 0;
   int _width, _height;
   GLFWwindow *_window = nullptr;
   ShaderProgram *_shaderProgram = nullptr;

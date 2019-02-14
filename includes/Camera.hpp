@@ -17,7 +17,7 @@ class Camera : public Entity {
   virtual void rotateX(float angle);
   virtual void rotateY(float angle);
 
-  bool isPaused(void) const;
+  bool isInDebugMode(void) const;
   void updateDebugMode(void);
 
   void mouseCallback(GLFWwindow *window, double xpos, double ypos);

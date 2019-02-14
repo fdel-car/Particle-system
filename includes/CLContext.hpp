@@ -11,7 +11,9 @@ class CLContext {
 
   void addSource(std::string const &fileName);
   void buildProgram(void);
-  void initMemory(GLuint const &VBO, size_t numParticles);
+  void initMemory(GLuint const &VBO);
+  void setParticles(size_t numParticles, char const *funcName);
+  void updateParticles(size_t numParticles);
 
   static std::string const getErrorString(cl_int const &error);
 

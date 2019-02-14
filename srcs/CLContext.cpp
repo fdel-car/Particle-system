@@ -86,34 +86,51 @@ void CLContext::buildProgram(void) {
                              CLContext::getErrorString(err) + ").");
 }
 
-// Weird unexpected pattern in the display, check that out!
-void CLContext::initMemory(GLuint const &VBO, size_t numParticles) {
+void CLContext::initMemory(GLuint const &VBO) {
   cl_int err = 0;
   _gl_buffers.push_back(cl::BufferGL(_context, CL_MEM_READ_WRITE, VBO, &err));
-  std::cout << "Get CL buffer from GL buffer: "
-            << CLContext::getErrorString(err) << std::endl;
+  if (err != 0)
+    throw std::runtime_error("Init CL buffer from GL buffer failed (" +
+                             CLContext::getErrorString(err) + ").");
+}
 
-  cl::Kernel kernel(_program, "initSphere", &err);
-  std::cout << "Kernel creation: " << CLContext::getErrorString(err)
-            << std::endl;
+void CLContext::setParticles(size_t numParticles, char const *funcName) {
+  cl::Kernel kernel(_program, funcName);
 
-  err = kernel.setArg(0, _gl_buffers[0]);
-  std::cout << "SetArg 1: " << CLContext::getErrorString(err) << std::endl;
-  err = kernel.setArg(1, numParticles);
-  std::cout << "SetArg 2: " << CLContext::getErrorString(err) << std::endl;
+  kernel.setArg(0, _gl_buffers[0]);
+  kernel.setArg(1, numParticles);
 
-  err = _queue.enqueueAcquireGLObjects(&_gl_buffers);
-  std::cout << "Acquire GL Obj: " << CLContext::getErrorString(err)
-            << std::endl;
-  err = _queue.enqueueNDRangeKernel(kernel, cl::NullRange,
-                                    cl::NDRange(numParticles), cl::NullRange);
-  std::cout << "Enqueue NDR Range: " << CLContext::getErrorString(err)
-            << std::endl;
-  err = _queue.finish();
-  std::cout << "Finish: " << CLContext::getErrorString(err) << std::endl;
-  err = _queue.enqueueReleaseGLObjects(&_gl_buffers);
-  std::cout << "Release GL Obj: " << CLContext::getErrorString(err)
-            << std::endl;
+  _queue.enqueueAcquireGLObjects(&_gl_buffers);
+  _queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(numParticles),
+                              cl::NullRange);
+  _queue.finish();
+  _queue.enqueueReleaseGLObjects(&_gl_buffers);
+}
+
+void CLContext::updateParticles(size_t numParticles) {
+  cl::Kernel kernel(_program, "updateParticles");
+
+  // I'm experimenting some stuff
+  glm::vec2 mousePos = _gl.getMousePos();
+
+  // Not the way it should be, I need to kind of raycast into the plane (x, y)
+  // in order to have a correct `mousePos`
+  mousePos.x /= _gl.getWidth();
+  mousePos.x -= 0.5f;
+  mousePos.y /= _gl.getHeight();
+  mousePos.y -= 0.5f;
+  mousePos.y *= -1.0f;
+
+  mousePos *= 4.0f;
+
+  kernel.setArg(0, _gl_buffers[0]);
+  kernel.setArg(1, glm::vec4(mousePos.x, mousePos.y, 0.0f, 1.0f));
+
+  _queue.enqueueAcquireGLObjects(&_gl_buffers);
+  _queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(numParticles),
+                              cl::NullRange);
+  _queue.finish();
+  _queue.enqueueReleaseGLObjects(&_gl_buffers);
 }
 
 bool CLContext::_isExtensionSupported(std::string const &reqExt,

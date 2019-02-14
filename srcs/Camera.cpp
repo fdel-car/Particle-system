@@ -3,20 +3,15 @@
 Camera::Camera(glm::vec3 const &pos, glm::vec3 const &eulerAngles,
                GLRenderer const &gl)
     : Entity(pos, eulerAngles), _gl(gl) {
-  _view = glm::inverse(getModelMatrix());
   _speed = 2.0f;
-  _front = -glm::normalize(glm::vec3(
-      getModelMatrix()[2][0], getModelMatrix()[2][1], getModelMatrix()[2][2]));
-  _right = glm::normalize(glm::vec3(
-      getModelMatrix()[0][0], getModelMatrix()[0][1], getModelMatrix()[0][2]));
-  _up = glm::normalize(glm::cross(_right, _front));
+  _updateData();
   _aspectRatio =
       static_cast<float>(_gl.getWidth()) / static_cast<float>(_gl.getHeight());
   _projection =
       glm::perspective(glm::radians(30.0f), _aspectRatio, 0.1f, 100.0f);
 }
 
-bool Camera::isPaused(void) const { return _debugMode; }
+bool Camera::isInDebugMode(void) const { return _debugMode; }
 
 Camera::~Camera(void) {}
 
@@ -25,10 +20,9 @@ glm::mat4 const &Camera::getViewMatrix(void) const { return _view; };
 glm::mat4 const &Camera::getProjectionMatrix(void) const { return _projection; }
 
 void Camera::update(void) {
-  float deltaTime = _gl.deltaTime;
-
   updateDebugMode();
   if (!_debugMode) return;
+  float deltaTime = _gl.deltaTime;
 
   if (_gl.isKeyPressed(GLFW_KEY_W)) translate(_front * deltaTime * _speed);
   if (_gl.isKeyPressed(GLFW_KEY_D)) translate(_right * deltaTime * _speed);
@@ -58,6 +52,13 @@ void Camera::updateDebugMode(void) {
     _lastMousePos.x = _gl.getMousePos().x;
     _lastMousePos.y = _gl.getMousePos().y;
     _gl.switchCursorMode(_debugMode);
+
+    if (!_debugMode) {
+      _position = glm::vec3(0.0, 0.0, 5.0);
+      _eulerAngles = glm::vec3(0.0f);
+      _updateTransformMatrices();
+      _updateData();
+    }
   }
 }
 
