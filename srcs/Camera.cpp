@@ -48,10 +48,12 @@ void Camera::update(void) {
 void Camera::updateDebugMode(void) {
   if (_gl.isKeyJustPressed(GLFW_KEY_TAB)) {
     _debugMode = !_debugMode;
+    _gl.switchCursorMode(_debugMode);
+
     // Avoid camera jump on first frame
+    _gl.updateMousePos();
     _lastMousePos.x = _gl.getMousePos().x;
     _lastMousePos.y = _gl.getMousePos().y;
-    _gl.switchCursorMode(_debugMode);
 
     if (!_debugMode) {
       _position = glm::vec3(0.0, 0.0, 5.0);

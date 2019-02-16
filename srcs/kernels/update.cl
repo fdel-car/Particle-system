@@ -6,8 +6,8 @@ __kernel void updateParticles(__global float4 *particles, float4 gravityCenter) 
     // float3 tmpPos = (float3)(pos->x, pos->y, pos->z);
 
     float4 dir = gravityCenter - *pos;
-    pos->x += dir.x * 0.001f;
-    pos->y += dir.y * 0.001f;
-    pos->z += dir.z * 0.001f;
+    pos->x += dir.x * 0.01f;
+    pos->y += dir.y * 0.01f;
+    pos->z += dir.z * 0.01f;
     // *pos += dir // This does not work, why?
 }

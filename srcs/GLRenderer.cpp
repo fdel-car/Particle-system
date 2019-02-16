@@ -11,29 +11,31 @@ GLRenderer::GLRenderer(void) {
 #endif
   glfwWindowHint(GLFW_FOCUSED, GL_TRUE);
   glfwWindowHint(GLFW_SAMPLES, 4);
-  GLFWmonitor *monitor = glfwGetPrimaryMonitor();
-  const GLFWvidmode *mode = glfwGetVideoMode(monitor);
   _window =
       glfwCreateWindow(WIDTH, HEIGHT, "Particle system", nullptr, nullptr);
   if (!_window) {
     glfwTerminate();
     throw std::runtime_error("Failed to create windows GLFW");
   }
-  glfwSetWindowPos(_window, (mode->width / 2) - (WIDTH / 2),
-                   (mode->height / 2) - (HEIGHT / 2));
+
+  // Discreetly center window
+  glfwHideWindow(_window);
+  _centerWindow(glfwGetPrimaryMonitor());
+  glfwShowWindow(_window);
+
   glfwGetFramebufferSize(_window, &_width, &_height);
   glfwMakeContextCurrent(_window);
   // glfwSwapInterval(0);  // Remove 60 fps limit from glfw
+
+  glfwSetKeyCallback(_window, _keyCallback);
+  glfwSetCursorPosCallback(_window, _cursorCallback);
+
   if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     throw std::runtime_error("Failed to initialize GLAD");
   printf("OpenGL %d.%d\n", GLVersion.major, GLVersion.minor);
   glViewport(0, 0, _width, _height);
-  glfwSetKeyCallback(_window, _keyCallback);
-  glfwSetCursorPosCallback(_window, _mouseCallback);
 
   _initShader();
-
-  _mousePos = glm::vec2(0.0f);
 }
 
 GLRenderer::~GLRenderer(void) {
@@ -41,9 +43,28 @@ GLRenderer::~GLRenderer(void) {
   glfwTerminate();
 }
 
+// https://vallentin.io/2014/02/07/glfw-center-window
+void GLRenderer::_centerWindow(GLFWmonitor *monitor) {
+  if (!monitor) return;
+  const GLFWvidmode *mode = glfwGetVideoMode(monitor);
+  if (!mode) return;
+  int monitorX, monitorY;
+  glfwGetMonitorPos(monitor, &monitorX, &monitorY);
+  int windowWidth, windowHeight;
+  glfwGetWindowSize(_window, &windowWidth, &windowHeight);
+  glfwSetWindowPos(_window, monitorX + (mode->width - windowWidth) / 2,
+                   monitorY + (mode->height - windowHeight) / 2);
+}
+
 void GLRenderer::_initShader(void) {
   _shaderProgram = new ShaderProgram("./srcs/shaders/default.vs",
                                      "./srcs/shaders/default.fs");
+}
+
+void GLRenderer::updateMousePos(void) const {
+  double xPos, yPos;
+  glfwGetCursorPos(_window, &xPos, &yPos);
+  _mousePos = glm::vec2(xPos, yPos);
 }
 
 void GLRenderer::initMemory(size_t numParticles) {
@@ -108,7 +129,7 @@ void GLRenderer::switchCursorMode(bool debugMode) const {
 
 glm::vec2 GLRenderer::_mousePos = glm::vec2(0.0f);
 
-void GLRenderer::_mouseCallback(GLFWwindow *window, double xPos, double yPos) {
+void GLRenderer::_cursorCallback(GLFWwindow *window, double xPos, double yPos) {
   _mousePos.x = xPos;
   _mousePos.y = yPos;
   (void)window;

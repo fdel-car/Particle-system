@@ -56,10 +56,11 @@ void ParticleSystem::runLoop(void) {
     glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     _camera->update();
+    // glm::mat4 VP = _camera->getProjectionMatrix() * _camera->getViewMatrix();
     if (!_camera->isInDebugMode()) {
       _resetPatternIfNeeded();
       // Update particles positions and velocities
-      _cl.updateParticles(_numParticles);
+      _cl.updateParticles(_numParticles, *_camera);
     }
     _gl.displayParticles(_numParticles, _camera->getProjectionMatrix() *
                                             _camera->getViewMatrix());

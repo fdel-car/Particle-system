@@ -4,6 +4,8 @@
 
 class GLRenderer;
 
+class Camera;
+
 class CLContext {
  public:
   CLContext(GLRenderer const &gl);
@@ -13,7 +15,7 @@ class CLContext {
   void buildProgram(void);
   void initMemory(GLuint const &VBO);
   void setParticles(size_t numParticles, char const *funcName);
-  void updateParticles(size_t numParticles);
+  void updateParticles(size_t numParticles, Camera const &camera);
 
   static std::string const getErrorString(cl_int const &error);
 

@@ -22,6 +22,7 @@ class GLRenderer {
 
   virtual ~GLRenderer(void);
 
+  void updateMousePos(void) const;
   void initMemory(size_t numParticles);
   bool isKeyPressed(int keyID) const;
   bool isKeyJustPressed(int keyID) const;
@@ -44,12 +45,13 @@ class GLRenderer {
 
   GLRenderer(GLRenderer const &src);
 
+  void _centerWindow(GLFWmonitor *monitor);
   void _initShader(void);
 
   static void _keyStateUpdate(int keyID, bool isPressed);
   static void _keyCallback(GLFWwindow *window, int key, int scancode,
                            int action, int mods);
-  static void _mouseCallback(GLFWwindow *window, double xpos, double ypos);
+  static void _cursorCallback(GLFWwindow *window, double xpos, double ypos);
 
   GLRenderer &operator=(GLRenderer const &rhs);
 };

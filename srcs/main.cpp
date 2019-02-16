@@ -19,8 +19,8 @@ int main(int argc, char **argv) {
     }
     size_t perfectCube = pow(round(cbrt(numParticles)), 3.0f);
     if (perfectCube != numParticles)
-    std::cout << "The closest perfect cube is: "
-              << perfectCube << '.' << std::endl;
+      std::cout << "The closest perfect cube is: " << perfectCube << '.'
+                << std::endl;
   }
   try {
     GLRenderer gl;
