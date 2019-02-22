@@ -10,7 +10,7 @@ GLRenderer::GLRenderer(void) {
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
   glfwWindowHint(GLFW_FOCUSED, GL_TRUE);
-  glfwWindowHint(GLFW_SAMPLES, 4);
+  // glfwWindowHint(GLFW_SAMPLES, 4);
   _window =
       glfwCreateWindow(WIDTH, HEIGHT, "Particle system", nullptr, nullptr);
   if (!_window) {
@@ -72,10 +72,22 @@ void GLRenderer::initMemory(size_t numParticles) {
   glGenBuffers(1, &VBO);
   glBindVertexArray(VAO);
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(float) * numParticles, nullptr,
+  glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(float) * numParticles, nullptr,
                GL_DYNAMIC_DRAW);
+
+  // Positions
   glEnableVertexAttribArray(0);
-  glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), nullptr);
+  glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 12 * sizeof(float), nullptr);
+
+  // Velocities
+  glEnableVertexAttribArray(1);
+  glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 12 * sizeof(float),
+                        (void *)(4 * sizeof(float)));
+
+  // Colors
+  glEnableVertexAttribArray(2);
+  glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 12 * sizeof(float),
+                        (void *)(8 * sizeof(float)));
   glBindVertexArray(0);
 }
 

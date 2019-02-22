@@ -136,6 +136,7 @@ void CLContext::updateParticles(size_t numParticles, Camera const &camera) {
 
     kernel.setArg(0, _gl_buffers[0]);
     kernel.setArg(1, glm::vec4(hit.x, hit.y, hit.z, 1.0f));
+    kernel.setArg(2, static_cast<float>(_gl.deltaTime));
 
     _queue.enqueueAcquireGLObjects(&_gl_buffers);
     _queue.enqueueNDRangeKernel(kernel, cl::NullRange,

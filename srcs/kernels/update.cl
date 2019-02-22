@@ -1,13 +1,23 @@
-__kernel void updateParticles(__global float4 *particles, float4 gravityCenter) {
-    __private int idx = get_global_id(0);
-    __global float4 *pos = &(particles[idx]);
+__kernel void updateParticles(__global Particle *particles, float4 gravityCenter, float deltaTime) {
+	__private int idx = get_global_id(0);
+	__global float4 *vel = &(particles[idx].velocity);
 
-    // float3 center = (float3)(0.2f, 0.0f, 0.0f);
-    // float3 tmpPos = (float3)(pos->x, pos->y, pos->z);
+	float3 vec = gravityCenter.xyz - particles[idx].position.xyz;
+	float G = 6.67E-11;
+	float dist = length(vec);
+	// The mass of a particle is one, so this is equal to the acceleration
+	float Fg = (G * 1.0E9f) / (dist * dist);
 
-    float4 dir = gravityCenter - *pos;
-    pos->x += dir.x * 0.01f;
-    pos->y += dir.y * 0.01f;
-    pos->z += dir.z * 0.01f;
-    // *pos += dir // This does not work, why?
+	vel->xyz += vec * Fg * deltaTime;
+	particles[idx].position += *vel;
+
+	// Yellow
+	float4 color = (float4)(1.0f, 0.8, 0.0f, 1.0f);
+
+	float maxSatDist = 4.0f;
+	float satCoeff = min(dist, maxSatDist) / maxSatDist;
+	float L = 0.299f * color.x + 0.587f * color.y + 0.114f * color.z;
+	particles[idx].color.x = color.x + satCoeff * (L - color.x);
+	particles[idx].color.y = color.y + satCoeff * (L - color.y);
+	particles[idx].color.z = color.z + satCoeff * (L - color.z);
 }
