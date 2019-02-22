@@ -14,8 +14,8 @@ __kernel void updateParticles(__global Particle *particles, float4 gravityCenter
 	// Yellow
 	float4 color = (float4)(1.0f, 0.8, 0.0f, 1.0f);
 
-	float maxSatDist = 4.0f;
-	float satCoeff = min(dist, maxSatDist) / maxSatDist;
+	float maxSatDist = 2.6f;
+	float satCoeff = 1.0f - (min(dist, maxSatDist) / maxSatDist);
 	float L = 0.299f * color.x + 0.587f * color.y + 0.114f * color.z;
 	particles[idx].color.x = color.x + satCoeff * (L - color.x);
 	particles[idx].color.y = color.y + satCoeff * (L - color.y);
