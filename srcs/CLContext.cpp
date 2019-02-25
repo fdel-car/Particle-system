@@ -108,42 +108,22 @@ void CLContext::setParticles(size_t numParticles, char const *funcName) {
   _queue.enqueueReleaseGLObjects(&_gl_buffers);
 }
 
-void CLContext::updateParticles(size_t numParticles, Camera const &camera) {
+void CLContext::updateParticles(size_t numParticles,
+                                glm::vec3 const gravityCenter,
+                                Settings const settings) {
   cl::Kernel kernel(_program, "updateParticles");
 
-  glm::vec2 mousePos = _gl.getMousePos();
+  kernel.setArg(0, _gl_buffers[0]);
+  kernel.setArg(
+      1, glm::vec4(gravityCenter.x, gravityCenter.y, gravityCenter.z, 1.0f));
+  kernel.setArg(2, static_cast<float>(_gl.deltaTime));
+  kernel.setArg(3, settings);
 
-  float x = (2.0f * mousePos.x) / _gl.getWidth() - 1.0f;
-  float y = 1.0f - (2.0f * mousePos.y) / _gl.getHeight();
-
-  glm::vec4 rayClipSpace(x, y, -1.0f, 1.0f);
-  glm::vec4 rayEyeSpace =
-      glm::inverse(camera.getProjectionMatrix()) * rayClipSpace;
-  rayEyeSpace.z = -1.0f;
-  rayEyeSpace.w = 0.0f;
-
-  glm::vec3 rayDir = (glm::inverse(camera.getViewMatrix()) * rayEyeSpace);
-  rayDir = glm::normalize(rayDir);
-
-  glm::vec3 rayOrig = camera.getPosition();
-  // This could be dynamic, in order to move the plane forward and backward
-  glm::vec3 planeInvNorm(0.0, 0.0, -1.0);
-
-  float tmp = glm::dot(planeInvNorm, rayDir);
-  if (tmp + EPSILON > 0.0f) {
-    float length = -glm::dot(rayOrig, planeInvNorm) / tmp;
-    glm::vec3 hit = rayOrig + rayDir * length;
-
-    kernel.setArg(0, _gl_buffers[0]);
-    kernel.setArg(1, glm::vec4(hit.x, hit.y, hit.z, 1.0f));
-    kernel.setArg(2, static_cast<float>(_gl.deltaTime));
-
-    _queue.enqueueAcquireGLObjects(&_gl_buffers);
-    _queue.enqueueNDRangeKernel(kernel, cl::NullRange,
-                                cl::NDRange(numParticles), cl::NullRange);
-    _queue.finish();
-    _queue.enqueueReleaseGLObjects(&_gl_buffers);
-  }
+  _queue.enqueueAcquireGLObjects(&_gl_buffers);
+  _queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(numParticles),
+                              cl::NullRange);
+  _queue.finish();
+  _queue.enqueueReleaseGLObjects(&_gl_buffers);
 }
 
 bool CLContext::_isExtensionSupported(std::string const &reqExt,

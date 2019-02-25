@@ -11,7 +11,7 @@ Camera::Camera(glm::vec3 const &pos, glm::vec3 const &eulerAngles,
       glm::perspective(glm::radians(30.0f), _aspectRatio, 0.1f, 100.0f);
 }
 
-bool Camera::isInDebugMode(void) const { return _debugMode; }
+bool Camera::isInFreeNavMode(void) const { return _freeNavMode; }
 
 Camera::~Camera(void) {}
 
@@ -20,16 +20,17 @@ glm::mat4 const &Camera::getViewMatrix(void) const { return _view; };
 glm::mat4 const &Camera::getProjectionMatrix(void) const { return _projection; }
 
 void Camera::update(void) {
-  updateDebugMode();
-  if (!_debugMode) return;
+  // if (!_freeNavMode) return;
   float deltaTime = _gl.deltaTime;
+  float finalSpeed = deltaTime * _speed;
+  if (_gl.isKeyPressed(GLFW_KEY_LEFT_SHIFT)) finalSpeed *= 2.4f;
 
-  if (_gl.isKeyPressed(GLFW_KEY_W)) translate(_front * deltaTime * _speed);
-  if (_gl.isKeyPressed(GLFW_KEY_D)) translate(_right * deltaTime * _speed);
-  if (_gl.isKeyPressed(GLFW_KEY_S)) translate(-_front * deltaTime * _speed);
-  if (_gl.isKeyPressed(GLFW_KEY_A)) translate(-_right * deltaTime * _speed);
-  if (_gl.isKeyPressed(GLFW_KEY_SPACE)) translate(_up * deltaTime * _speed);
-  if (_gl.isKeyPressed(GLFW_KEY_C)) translate(-_up * deltaTime * _speed);
+  if (_gl.isKeyPressed(GLFW_KEY_W)) translate(_front * finalSpeed);
+  if (_gl.isKeyPressed(GLFW_KEY_D)) translate(_right * finalSpeed);
+  if (_gl.isKeyPressed(GLFW_KEY_S)) translate(-_front * finalSpeed);
+  if (_gl.isKeyPressed(GLFW_KEY_A)) translate(-_right * finalSpeed);
+  if (_gl.isKeyPressed(GLFW_KEY_SPACE)) translate(_up * finalSpeed);
+  if (_gl.isKeyPressed(GLFW_KEY_C)) translate(-_up * finalSpeed);
 
   glm::vec2 const mousePos = _gl.getMousePos();
   float xOffset = mousePos.x - _lastMousePos.x;
@@ -45,22 +46,20 @@ void Camera::update(void) {
   if (glm::epsilonNotEqual(0.0f, xOffset, EPSILON)) rotateY(-xOffset);
 }
 
-void Camera::updateDebugMode(void) {
-  if (_gl.isKeyJustPressed(GLFW_KEY_TAB)) {
-    _debugMode = !_debugMode;
-    _gl.switchCursorMode(_debugMode);
+void Camera::toggleFreeNavMode(void) {
+  _freeNavMode = !_freeNavMode;
+  _gl.switchCursorMode(_freeNavMode);
 
-    // Avoid camera jump on first frame
-    _gl.updateMousePos();
-    _lastMousePos.x = _gl.getMousePos().x;
-    _lastMousePos.y = _gl.getMousePos().y;
+  // Avoid camera jump on first frame
+  _gl.updateMousePos();
+  _lastMousePos.x = _gl.getMousePos().x;
+  _lastMousePos.y = _gl.getMousePos().y;
 
-    if (!_debugMode) {
-      _position = glm::vec3(0.0, 0.0, 5.0);
-      _eulerAngles = glm::vec3(0.0f);
-      _updateTransformMatrices();
-      _updateData();
-    }
+  if (!_freeNavMode) {
+    _position = Camera::initialPos;
+    _eulerAngles = glm::vec3(0.0f);
+    _updateTransformMatrices();
+    _updateData();
   }
 }
 
@@ -87,3 +86,5 @@ void Camera::_updateData(void) {
   _up = glm::normalize(glm::cross(_right, _front));
   _view = glm::inverse(getModelMatrix());
 }
+
+glm::vec3 const Camera::initialPos = glm::vec3(0.0f, 0.0f, 6.0f);

@@ -27,7 +27,7 @@ class GLRenderer {
   bool isKeyPressed(int keyID) const;
   bool isKeyJustPressed(int keyID) const;
   void displayParticles(size_t numParticles, glm::mat4 const &VP);
-  void switchCursorMode(bool debugMode) const;
+  void switchCursorMode(bool freeNavMode) const;
 
   GLFWwindow *getWindow(void) const;
   glm::vec2 const getMousePos(void) const;

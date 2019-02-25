@@ -40,3 +40,8 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #define EPSILON 0.001f
+
+typedef struct {
+  cl_uchar gravityEnabled = true;
+  cl_float4 color;
+} Settings;

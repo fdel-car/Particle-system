@@ -5,6 +5,8 @@
 
 class Camera : public Entity {
  public:
+  static glm::vec3 const initialPos;
+
   Camera(glm::vec3 const &pos, glm::vec3 const &eulerAngles,
          GLRenderer const &gl);
   virtual ~Camera(void);
@@ -17,13 +19,13 @@ class Camera : public Entity {
   virtual void rotateX(float angle);
   virtual void rotateY(float angle);
 
-  bool isInDebugMode(void) const;
-  void updateDebugMode(void);
+  bool isInFreeNavMode(void) const;
+  void toggleFreeNavMode(void);
 
   void mouseCallback(GLFWwindow *window, double xpos, double ypos);
 
  private:
-  bool _debugMode = false;
+  bool _freeNavMode = false;
   float _speed;
   float _aspectRatio;
   glm::mat4 _view;

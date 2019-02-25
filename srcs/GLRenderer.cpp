@@ -119,7 +119,18 @@ void GLRenderer::displayParticles(size_t numParticles, glm::mat4 const &VP) {
   // Update FPS counter
   _nbFrames++;
   if (currentTime - lastFPSUpdateTime >= 1.0) {
-    glfwSetWindowTitle(_window, std::to_string(_nbFrames).c_str());
+    // Modify the string to have a space every three digits for lisibility
+    std::string str = std::to_string(numParticles);
+    int idx = 0;
+    for (auto it = str.end(); it != str.begin(); it--, idx++) {
+      if (idx == 3) {
+        str.insert(std::distance(str.begin(), it), 1, ' ');
+        idx = 0;
+      }
+    }
+
+    glfwSetWindowTitle(
+        _window, (str + " : " + std::to_string(_nbFrames) + " FPS").c_str());
     _nbFrames = 0;
     lastFPSUpdateTime += 1.0;
   }
@@ -134,9 +145,9 @@ void GLRenderer::displayParticles(size_t numParticles, glm::mat4 const &VP) {
   glBindVertexArray(0);
 }
 
-void GLRenderer::switchCursorMode(bool debugMode) const {
+void GLRenderer::switchCursorMode(bool freeNavMode) const {
   glfwSetInputMode(_window, GLFW_CURSOR,
-                   debugMode ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
+                   freeNavMode ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
 }
 
 glm::vec2 GLRenderer::_mousePos = glm::vec2(0.0f);

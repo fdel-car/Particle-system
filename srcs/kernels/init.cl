@@ -4,7 +4,7 @@ typedef struct {
 	float4 color;
 }	Particle;
 
-void initValues(__global Particle *particles, int idx) {
+void initValues(__global Particle *particles, int const idx) {
 	// Init with full opacity
 	particles[idx].position.w = 1.0f;
 
@@ -14,8 +14,8 @@ void initValues(__global Particle *particles, int idx) {
 	particles[idx].color = (float4)(0);
 }
 
-__kernel void initLatitudes(__global Particle *particles, ulong numParticles) {
-	__private int idx = get_global_id(0);
+__kernel void initLatitudes(__global Particle *particles, ulong const numParticles) {
+	__private int const idx = get_global_id(0);
 	__global float4 *pos = &(particles[idx].position);
 
 	float cubeRoot = cbrt((float)numParticles);
@@ -34,8 +34,8 @@ __kernel void initLatitudes(__global Particle *particles, ulong numParticles) {
 	initValues(particles, idx);
 }
 
-__kernel void initLongitudes(__global Particle *particles, ulong numParticles) {
-	__private int idx = get_global_id(0);
+__kernel void initLongitudes(__global Particle *particles, ulong const numParticles) {
+	__private int const idx = get_global_id(0);
 	__global float4 *pos = &(particles[idx].position);
 
 	float cubeRoot = cbrt((float)numParticles);
@@ -54,8 +54,8 @@ __kernel void initLongitudes(__global Particle *particles, ulong numParticles) {
 	initValues(particles, idx);
 }
 
-__kernel void initFilledCube(__global Particle *particles, ulong numParticles) {
-	__private int idx = get_global_id(0);
+__kernel void initFilledCube(__global Particle *particles, ulong const numParticles) {
+	__private int const idx = get_global_id(0);
 	__global float4 *pos = &(particles[idx].position);
 
 	float cubeRoot = cbrt((float)numParticles);
