@@ -17,14 +17,16 @@ int main(int argc, char **argv) {
                 << std::endl;
       return EXIT_FAILURE;
     }
-    size_t perfectCube = pow(round(cbrt(numParticles)), 3.0f);
-    if (perfectCube != numParticles)
-      std::cout << "The closest perfect cube is: " << perfectCube << '.'
-                << std::endl;
+    // size_t perfectCube = pow(round(cbrt(numParticles)), 3.0f);
+    // if (perfectCube != numParticles)
+    //   std::cout << "The closest perfect cube is: " << perfectCube << '.'
+    //             << std::endl;
   }
   try {
     GLRenderer gl;
     CLContext cl(gl);
+    size_t maxWorkGroupSize = cl.getMaxWorkGroupSize();
+    numParticles = (numParticles / maxWorkGroupSize + 1) * maxWorkGroupSize;
     ParticleSystem ps(gl, cl, numParticles);
     ps.runLoop();
     return EXIT_SUCCESS;

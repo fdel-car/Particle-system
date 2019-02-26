@@ -1,1 +1,1 @@
-rm -rf ./srcs/glad/ ./includes/glad/ ./includes/KHR/
+rm -rf ./srcs/glad/ ./includes/glad/ ./includes/KHR/ ./includes/OpenCL/

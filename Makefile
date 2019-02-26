@@ -8,7 +8,7 @@ ignore-warnings : CFLAGS := -w
 LIBS :=
 HEADERS := -I./includes/ -I./libs/includes/
 
-ifeq ($(OS),Darwin)
+ifeq ($(OS), Darwin)
 	LIBS += -framework OpenGL -framework OpenCL `pkg-config --libs glfw3`
 	HEADERS += -I/opt/X11/include `pkg-config --cflags glfw3` `pkg-config --cflags glm`
 else

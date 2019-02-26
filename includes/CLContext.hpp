@@ -15,6 +15,7 @@ class CLContext {
   void setParticles(size_t numParticles, char const *funcName);
   void updateParticles(size_t numParticles, glm::vec3 const gravityCenter,
                        cl_uchar const gravityEnabled);
+  size_t getMaxWorkGroupSize(void) const;
 
   static std::string const getErrorString(cl_int const &error);
 
@@ -30,6 +31,7 @@ class CLContext {
   std::vector<cl::Memory> _gl_buffers;
   GLRenderer const &_gl;
   cl::Kernel *_updateKernel = nullptr;
+  size_t _maxWorkGroupSize;
 
   CLContext(void);
   CLContext(CLContext const &src);

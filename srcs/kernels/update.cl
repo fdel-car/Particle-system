@@ -5,10 +5,10 @@ __kernel void updateParticles(__global Particle *particles, float3 const gravity
 	float3 vec = gravityCenter - particles[idx].position.xyz;
 	float dist = length(vec);
 	if (gravityEnabled != 0) {
-		float Gm = 6.67E-2f; // 6.67E-11f * 1.0E9f
+		// float Gm = 6.67E-2f; // 6.67E-11f * 1.0E9f
 		// The mass of a particle is one, so this is equal to the acceleration
-		float Fg = Gm / pown(dist, 2);
-		vel->xyz += vec * Fg * deltaTime;
+		// float Fg = Gm / pown(dist, 2);
+		vel->xyz += vec * (6.67E-2f / pown(dist, 2)) * deltaTime;
 	}
-	particles[idx].position += *vel;
+	particles[idx].position.xyz += vel->xyz;
 }

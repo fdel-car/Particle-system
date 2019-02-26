@@ -7,6 +7,7 @@ CLContext::CLContext(GLRenderer const &gl) : _gl(gl) {
   _defaultPlatform = _platforms.front();
   _defaultPlatform.getDevices(CL_DEVICE_TYPE_GPU, &_devices);
   _defaultDevice = _devices.front();
+  _maxWorkGroupSize = _defaultDevice.getInfo<CL_DEVICE_MAX_WORK_GROUP_SIZE>();
 
 #if defined(__APPLE__) || defined(MACOSX)
   static std::string const CL_GL_SHARING_EXT = "cl_APPLE_gl_sharing";
@@ -63,6 +64,8 @@ CLContext::~CLContext(void) {
   if (_updateKernel) delete _updateKernel;
 }
 
+size_t CLContext::getMaxWorkGroupSize(void) const { return _maxWorkGroupSize; }
+
 void CLContext::addSource(std::string const &fileName) {
   FILE *fp = fopen(("./srcs/kernels/" + fileName).c_str(), "rb");
 
@@ -91,7 +94,8 @@ void CLContext::buildProgram(void) {
 
 void CLContext::initMemory(GLuint const &VBO) {
   cl_int err = 0;
-  _gl_buffers.push_back(cl::BufferGL(_context, CL_MEM_READ_WRITE, VBO, &err));
+  _gl_buffers.push_back(cl::BufferGL(
+      _context, CL_MEM_READ_WRITE | CL_MEM_HOST_NO_ACCESS, VBO, &err));
   if (err != 0)
     throw std::runtime_error("Init CL buffer from GL buffer failed (" +
                              CLContext::getErrorString(err) + ").");
@@ -106,10 +110,11 @@ void CLContext::setParticles(size_t numParticles, char const *funcName) {
   kernel.setArg(0, _gl_buffers[0]);
   kernel.setArg(1, numParticles);
 
-  glFinish();
+  // glFinish();
   _queue.enqueueAcquireGLObjects(&_gl_buffers);
   _queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(numParticles),
-                              cl::NullRange);
+                              cl::NDRange(_maxWorkGroupSize));
+  // _queue.finish();
   _queue.enqueueReleaseGLObjects(&_gl_buffers);
 }
 
@@ -120,10 +125,12 @@ void CLContext::updateParticles(size_t numParticles,
   _updateKernel->setArg(2, static_cast<float>(_gl.deltaTime));
   _updateKernel->setArg(3, gravityEnabled);
 
-  glFinish();
+  // glFinish();
   _queue.enqueueAcquireGLObjects(&_gl_buffers);
   _queue.enqueueNDRangeKernel(*_updateKernel, cl::NullRange,
-                              cl::NDRange(numParticles), cl::NullRange);
+                              cl::NDRange(numParticles),
+                              cl::NDRange(_maxWorkGroupSize));
+  // _queue.finish();
   _queue.enqueueReleaseGLObjects(&_gl_buffers);
 }
 

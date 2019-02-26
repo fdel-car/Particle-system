@@ -24,4 +24,8 @@ if [[ ! -d "./srcs/glad" && ! -d "./includes/glad" && ! -d "./includes/KHR" ]]; 
     rm -rf tmp-glad
 fi
 
-# TODO: fetch the C++ bindings for OpenCL => OpenCL/cl.hpp
+if [[ "$OSTYPE" == "darwin"* && ! -d "./includes/OpenCL" ]]; then
+    mkdir -p ./includes/OpenCL
+    curl https://www.khronos.org/registry/OpenCL/api/2.1/cl.hpp -o cl.hpp
+    mv cl.hpp ./includes/OpenCL
+fi
