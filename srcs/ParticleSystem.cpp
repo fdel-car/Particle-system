@@ -20,13 +20,6 @@ void ParticleSystem::_init(void) {
   _funcIdx = 0;
   _cl.setParticles(_numParticles, _initFuncNames[_funcIdx]);
 
-  _settings.color.s[0] = _avalaibleColors[_colorIdx].r;
-  _settings.color.s[1] = _avalaibleColors[_colorIdx].g;
-  _settings.color.s[2] = _avalaibleColors[_colorIdx].b;
-
-  // Full opacity
-  _settings.color.s[3] = 1.0f;
-
   if (!_camera) _camera = new Camera(Camera::initialPos, glm::vec3(0.0f), _gl);
 }
 
@@ -40,8 +33,7 @@ void ParticleSystem::_handleInput(void) {
       (!_camera->isInFreeNavMode() && _gl.isKeyJustPressed(GLFW_KEY_SPACE)))
     _isPaused = !_isPaused;
 
-  if (_gl.isKeyJustPressed(GLFW_KEY_G))
-    _settings.gravityEnabled = !_settings.gravityEnabled;
+  if (_gl.isKeyJustPressed(GLFW_KEY_G)) _gravityEnabled = !_gravityEnabled;
 
   if (!_isPaused) {
     _resetShapeIfNeeded();
@@ -85,9 +77,6 @@ void ParticleSystem::_changeColorIfNeeded(void) {
       _colorIdx++;
       if (_colorIdx >= _avalaibleColors.size()) _colorIdx = 0;
     }
-    _settings.color.s[0] = _avalaibleColors[_colorIdx].r;
-    _settings.color.s[1] = _avalaibleColors[_colorIdx].g;
-    _settings.color.s[2] = _avalaibleColors[_colorIdx].b;
   }
 }
 
@@ -113,11 +102,11 @@ glm::vec3 ParticleSystem::_rayCastToXYPlane(glm::vec2 const &screenPos) {
 }
 
 void ParticleSystem::_updateParticles(void) {
-  if (!_camera->isInFreeNavMode() && _settings.gravityEnabled) {
+  if (!_camera->isInFreeNavMode() && _gravityEnabled) {
     _gravityCenter = _rayCastToXYPlane(_gl.getMousePos());
   }
 
-  _cl.updateParticles(_numParticles, _gravityCenter, _settings);
+  _cl.updateParticles(_numParticles, _gravityCenter, _gravityEnabled);
 }
 
 void ParticleSystem::runLoop(void) {
@@ -135,8 +124,10 @@ void ParticleSystem::runLoop(void) {
     // Update particles positions and velocities
     if (!_isPaused) _updateParticles();
 
-    _gl.displayParticles(_numParticles, _camera->getProjectionMatrix() *
-                                            _camera->getViewMatrix());
+    _gl.displayParticles(
+        _numParticles,
+        _camera->getProjectionMatrix() * _camera->getViewMatrix(),
+        _gravityCenter, _avalaibleColors[_colorIdx]);
     glfwSwapBuffers(_gl.getWindow());
   }
 }

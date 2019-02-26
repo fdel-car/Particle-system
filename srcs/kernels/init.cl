@@ -1,7 +1,6 @@
 typedef struct {
 	float4 position;
 	float4 velocity;
-	float4 color;
 }	Particle;
 
 void initValues(__global Particle *particles, int const idx) {
@@ -10,8 +9,6 @@ void initValues(__global Particle *particles, int const idx) {
 
 	// Init with no initial velocity, this could be changed to produce nice effects
 	particles[idx].velocity = (float4)(0);
-
-	particles[idx].color = (float4)(0);
 }
 
 __kernel void initLatitudes(__global Particle *particles, ulong const numParticles) {

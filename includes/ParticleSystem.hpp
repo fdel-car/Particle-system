@@ -20,7 +20,7 @@ class ParticleSystem {
   size_t _funcIdx = 0;
   size_t _colorIdx = 0;
   glm::vec3 _gravityCenter = glm::vec3(0.0f);
-  Settings _settings;
+  cl_uchar _gravityEnabled = true;
   bool _isPaused = false;
 
   static std::vector<char const *> _initFuncNames;

@@ -26,7 +26,9 @@ class GLRenderer {
   void initMemory(size_t numParticles);
   bool isKeyPressed(int keyID) const;
   bool isKeyJustPressed(int keyID) const;
-  void displayParticles(size_t numParticles, glm::mat4 const &VP);
+  void displayParticles(size_t numParticles, glm::mat4 const &VP,
+                        glm::vec3 const &gravityCenter,
+                        glm::vec3 const &satColor);
   void switchCursorMode(bool freeNavMode) const;
 
   GLFWwindow *getWindow(void) const;

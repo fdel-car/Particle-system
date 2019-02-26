@@ -14,7 +14,7 @@ class CLContext {
   void initMemory(GLuint const &VBO);
   void setParticles(size_t numParticles, char const *funcName);
   void updateParticles(size_t numParticles, glm::vec3 const gravityCenter,
-                       Settings const settings);
+                       cl_uchar const gravityEnabled);
 
   static std::string const getErrorString(cl_int const &error);
 
@@ -29,6 +29,7 @@ class CLContext {
   cl::Program _program;
   std::vector<cl::Memory> _gl_buffers;
   GLRenderer const &_gl;
+  cl::Kernel *_updateKernel = nullptr;
 
   CLContext(void);
   CLContext(CLContext const &src);

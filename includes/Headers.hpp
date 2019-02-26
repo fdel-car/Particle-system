@@ -42,6 +42,6 @@
 #define EPSILON 0.001f
 
 typedef struct {
-  cl_uchar gravityEnabled = true;
-  cl_float4 color;
-} Settings;
+  cl_float4 position;
+  cl_float4 velocity;
+} Particle;

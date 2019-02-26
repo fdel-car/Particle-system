@@ -59,7 +59,9 @@ CLContext::CLContext(GLRenderer const &gl) : _gl(gl) {
         CLContext::getErrorString(err) + ").");
 }
 
-CLContext::~CLContext(void) {}
+CLContext::~CLContext(void) {
+  if (_updateKernel) delete _updateKernel;
+}
 
 void CLContext::addSource(std::string const &fileName) {
   FILE *fp = fopen(("./srcs/kernels/" + fileName).c_str(), "rb");
@@ -93,6 +95,9 @@ void CLContext::initMemory(GLuint const &VBO) {
   if (err != 0)
     throw std::runtime_error("Init CL buffer from GL buffer failed (" +
                              CLContext::getErrorString(err) + ").");
+
+  _updateKernel = new cl::Kernel(_program, "updateParticles");
+  _updateKernel->setArg(0, _gl_buffers[0]);
 }
 
 void CLContext::setParticles(size_t numParticles, char const *funcName) {
@@ -101,28 +106,24 @@ void CLContext::setParticles(size_t numParticles, char const *funcName) {
   kernel.setArg(0, _gl_buffers[0]);
   kernel.setArg(1, numParticles);
 
+  glFinish();
   _queue.enqueueAcquireGLObjects(&_gl_buffers);
   _queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(numParticles),
                               cl::NullRange);
-  _queue.finish();
   _queue.enqueueReleaseGLObjects(&_gl_buffers);
 }
 
 void CLContext::updateParticles(size_t numParticles,
                                 glm::vec3 const gravityCenter,
-                                Settings const settings) {
-  cl::Kernel kernel(_program, "updateParticles");
+                                cl_uchar const gravityEnabled) {
+  _updateKernel->setArg(1, gravityCenter);
+  _updateKernel->setArg(2, static_cast<float>(_gl.deltaTime));
+  _updateKernel->setArg(3, gravityEnabled);
 
-  kernel.setArg(0, _gl_buffers[0]);
-  kernel.setArg(
-      1, glm::vec4(gravityCenter.x, gravityCenter.y, gravityCenter.z, 1.0f));
-  kernel.setArg(2, static_cast<float>(_gl.deltaTime));
-  kernel.setArg(3, settings);
-
+  glFinish();
   _queue.enqueueAcquireGLObjects(&_gl_buffers);
-  _queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(numParticles),
-                              cl::NullRange);
-  _queue.finish();
+  _queue.enqueueNDRangeKernel(*_updateKernel, cl::NullRange,
+                              cl::NDRange(numParticles), cl::NullRange);
   _queue.enqueueReleaseGLObjects(&_gl_buffers);
 }
 

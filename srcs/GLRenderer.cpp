@@ -72,22 +72,18 @@ void GLRenderer::initMemory(size_t numParticles) {
   glGenBuffers(1, &VBO);
   glBindVertexArray(VAO);
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(float) * numParticles, nullptr,
+  glBufferData(GL_ARRAY_BUFFER, sizeof(Particle) * numParticles, nullptr,
                GL_DYNAMIC_DRAW);
 
   // Positions
   glEnableVertexAttribArray(0);
-  glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 12 * sizeof(float), nullptr);
+  glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(Particle), nullptr);
 
   // Velocities
   glEnableVertexAttribArray(1);
-  glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 12 * sizeof(float),
-                        (void *)(4 * sizeof(float)));
+  glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Particle),
+                        (void *)(offsetof(Particle, velocity)));
 
-  // Colors
-  glEnableVertexAttribArray(2);
-  glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 12 * sizeof(float),
-                        (void *)(8 * sizeof(float)));
   glBindVertexArray(0);
 }
 
@@ -110,7 +106,9 @@ bool GLRenderer::isKeyJustPressed(int keyID) const {
          !result->second.prevFrame;
 }
 
-void GLRenderer::displayParticles(size_t numParticles, glm::mat4 const &VP) {
+void GLRenderer::displayParticles(size_t numParticles, glm::mat4 const &VP,
+                                  glm::vec3 const &gravityCenter,
+                                  glm::vec3 const &satColor) {
   // Compute deltaTime
   currentTime = glfwGetTime();
   deltaTime = currentTime - lastTime;
@@ -141,6 +139,8 @@ void GLRenderer::displayParticles(size_t numParticles, glm::mat4 const &VP) {
   glBindVertexArray(VAO);
   glUseProgram(_shaderProgram->getID());
   _shaderProgram->setMat4("VP", VP);
+  _shaderProgram->setVec3("gravityCenter", gravityCenter);
+  _shaderProgram->setVec3("satColor", satColor);
   glDrawArrays(GL_POINTS, 0, numParticles);
   glBindVertexArray(0);
 }
