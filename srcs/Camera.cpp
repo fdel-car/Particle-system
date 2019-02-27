@@ -69,8 +69,10 @@ void Camera::translate(glm::vec3 translation) {
 }
 
 void Camera::rotateX(float angle) {
-  Entity::rotateX(angle);
-  _updateData();
+  if (fabs(getEulerAngles().x + angle + EPSILON) <= 90.0f) {
+    Entity::rotateX(angle);
+    _updateData();
+  }
 }
 
 void Camera::rotateY(float angle) {

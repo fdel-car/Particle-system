@@ -16,7 +16,7 @@ void ParticleSystem::_init(void) {
   _cl.buildProgram();
 
   _gl.initMemory(_numParticles);
-  _cl.initMemory(_gl.VBO);
+  _cl.initMemory(_gl.VBO, _numParticles);
   _funcIdx = 0;
   _cl.setParticles(_numParticles, _initFuncNames[_funcIdx]);
 
@@ -35,10 +35,8 @@ void ParticleSystem::_handleInput(void) {
 
   if (_gl.isKeyJustPressed(GLFW_KEY_G)) _gravityEnabled = !_gravityEnabled;
 
-  if (!_isPaused) {
-    _resetShapeIfNeeded();
-    _changeColorIfNeeded();
-  }
+  _resetShapeIfNeeded();
+  _changeColorIfNeeded();
 }
 
 void ParticleSystem::_resetShapeIfNeeded(void) {
@@ -134,9 +132,10 @@ void ParticleSystem::runLoop(void) {
 
 std::vector<char const *> ParticleSystem::_getInitFuncNames(void) {
   std::vector<char const *> vector;
+  vector.push_back("initSphere");
+  vector.push_back("initFilledCube");
   vector.push_back("initLatitudes");
   vector.push_back("initLongitudes");
-  vector.push_back("initFilledCube");
   return vector;
 }
 

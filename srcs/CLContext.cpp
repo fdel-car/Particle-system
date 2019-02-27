@@ -92,46 +92,54 @@ void CLContext::buildProgram(void) {
                              CLContext::getErrorString(err) + ").");
 }
 
-void CLContext::initMemory(GLuint const &VBO) {
+void CLContext::initMemory(GLuint const &VBO, size_t numParticles) {
   cl_int err = 0;
-  _gl_buffers.push_back(cl::BufferGL(
-      _context, CL_MEM_READ_WRITE | CL_MEM_HOST_NO_ACCESS, VBO, &err));
+  _gpu_buffers.push_back(cl::BufferGL(
+      _context, CL_MEM_WRITE_ONLY | CL_MEM_HOST_NO_ACCESS, VBO, &err));
   if (err != 0)
-    throw std::runtime_error("Init CL buffer from GL buffer failed (" +
+    throw std::runtime_error(
+        "Init CL buffer from GL buffer for positions failed (" +
+        CLContext::getErrorString(err) + ").");
+  _gpu_buffers.push_back(
+      cl::Buffer(_context, CL_MEM_READ_WRITE | CL_MEM_HOST_NO_ACCESS,
+                 sizeof(cl_float4) * numParticles, nullptr, &err));
+  if (err != 0)
+    throw std::runtime_error("Init CL buffer for velocities failed (" +
                              CLContext::getErrorString(err) + ").");
 
   _updateKernel = new cl::Kernel(_program, "updateParticles");
-  _updateKernel->setArg(0, _gl_buffers[0]);
+  _updateKernel->setArg(0, _gpu_buffers[0]);
+  _updateKernel->setArg(1, _gpu_buffers[1]);
 }
 
 void CLContext::setParticles(size_t numParticles, char const *funcName) {
   cl::Kernel kernel(_program, funcName);
 
-  kernel.setArg(0, _gl_buffers[0]);
-  kernel.setArg(1, numParticles);
+  kernel.setArg(0, _gpu_buffers[0]);
+  kernel.setArg(1, _gpu_buffers[1]);
 
-  // glFinish();
-  _queue.enqueueAcquireGLObjects(&_gl_buffers);
+  glFinish();
+  _queue.enqueueAcquireGLObjects(&_gpu_buffers);
   _queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(numParticles),
                               cl::NDRange(_maxWorkGroupSize));
-  // _queue.finish();
-  _queue.enqueueReleaseGLObjects(&_gl_buffers);
+  _queue.finish();
+  _queue.enqueueReleaseGLObjects(&_gpu_buffers);
 }
 
 void CLContext::updateParticles(size_t numParticles,
                                 glm::vec3 const gravityCenter,
                                 cl_uchar const gravityEnabled) {
-  _updateKernel->setArg(1, gravityCenter);
-  _updateKernel->setArg(2, static_cast<float>(_gl.deltaTime));
-  _updateKernel->setArg(3, gravityEnabled);
+  _updateKernel->setArg(2, gravityCenter);
+  _updateKernel->setArg(3, static_cast<float>(_gl.deltaTime));
+  _updateKernel->setArg(4, gravityEnabled);
 
-  // glFinish();
-  _queue.enqueueAcquireGLObjects(&_gl_buffers);
+  glFinish();
+  _queue.enqueueAcquireGLObjects(&_gpu_buffers);
   _queue.enqueueNDRangeKernel(*_updateKernel, cl::NullRange,
                               cl::NDRange(numParticles),
                               cl::NDRange(_maxWorkGroupSize));
-  // _queue.finish();
-  _queue.enqueueReleaseGLObjects(&_gl_buffers);
+  _queue.finish();
+  _queue.enqueueReleaseGLObjects(&_gpu_buffers);
 }
 
 bool CLContext::_isExtensionSupported(std::string const &reqExt,

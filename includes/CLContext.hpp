@@ -11,7 +11,7 @@ class CLContext {
 
   void addSource(std::string const &fileName);
   void buildProgram(void);
-  void initMemory(GLuint const &VBO);
+  void initMemory(GLuint const &VBO, size_t numParticles);
   void setParticles(size_t numParticles, char const *funcName);
   void updateParticles(size_t numParticles, glm::vec3 const gravityCenter,
                        cl_uchar const gravityEnabled);
@@ -28,7 +28,7 @@ class CLContext {
   cl::CommandQueue _queue;
   cl::Program::Sources _sources;
   cl::Program _program;
-  std::vector<cl::Memory> _gl_buffers;
+  std::vector<cl::Memory> _gpu_buffers;
   GLRenderer const &_gl;
   cl::Kernel *_updateKernel = nullptr;
   size_t _maxWorkGroupSize;

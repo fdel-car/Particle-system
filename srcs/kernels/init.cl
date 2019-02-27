@@ -1,73 +1,73 @@
-typedef struct {
-	float4 position;
-	float4 velocity;
-}	Particle;
+// https://web.archive.org/web/20120219141616/http://www.cgafaq.info/wiki/Evenly_distributed_points_on_sphere
+__kernel void initSphere(__global float4 *pos, __global float4 *vel) {
+    uint const idx = get_global_id(0);
 
-void initValues(__global Particle *particles, int const idx) {
-	// Init with full opacity
-	particles[idx].position.w = 1.0f;
+	float dlong = 2.39996322973f; // M_PI_F * (3.0f - sqrtf(5.0f))
+	float dz = 2.0f / get_global_size(0);
 
-	// Init with no initial velocity, this could be changed to produce nice effects
-	particles[idx].velocity = (float4)(0);
+	float z = (1.0f - dz / 2.0f) - (dz * idx);
+	float l = dlong * idx;
+	float r = sqrt(1.0f - z * z);
+
+	pos[idx].x = cos(l) * r;
+	pos[idx].y = sin(l) * r;
+	pos[idx].z = z;
+
+	pos[idx].w = 1.0f;
+	vel[idx] = (float4)(0);
 }
 
-__kernel void initLatitudes(__global Particle *particles, ulong const numParticles) {
-	__private int const idx = get_global_id(0);
-	__global float4 *pos = &(particles[idx].position);
+__kernel void initFilledCube(__global float4 *pos, __global float4 *vel) {
+	uint const idx = get_global_id(0);
 
-	float cubeRoot = cbrt((float)numParticles);
-	int largeIdx = idx / cubeRoot;
-	int smallIdx = fmod((float)idx, cubeRoot);
-	float lTheta = (largeIdx / (cubeRoot * cubeRoot)) * (M_PI * 2);
-	float sTheta = (smallIdx / cubeRoot) * (M_PI * 2);
-	pos->x = 0.5f * cos(lTheta);
-	pos->y = 0.5f * sin(lTheta);
-	pos->z = 0.0f;
+	float cubeRoot = cbrt((float)get_global_size(0));
 
-	float tmpX = pos->x;
-	pos->x = cos(sTheta) * pos->x;
-	pos->z = -sin(sTheta) * tmpX;
+	uint x = fmod((float)idx, cubeRoot);
+	uint y = fmod((float)idx / cubeRoot, cubeRoot);
+	uint z = idx / (cubeRoot * cubeRoot);
 
-	initValues(particles, idx);
+	float invCubeRoot = 1.0f / cubeRoot;
+	float centerCorrection = -0.5f + invCubeRoot / 1.0f;
+
+	pos[idx].x = x * invCubeRoot + centerCorrection;
+	pos[idx].y = y * invCubeRoot + centerCorrection;
+	pos[idx].z = z * invCubeRoot + centerCorrection;
+	pos[idx].w = 1.0f;
+	vel[idx] = (float4)(0);
 }
 
-__kernel void initLongitudes(__global Particle *particles, ulong const numParticles) {
-	__private int const idx = get_global_id(0);
-	__global float4 *pos = &(particles[idx].position);
+__kernel void initLatitudes(__global float4 *pos, __global float4 *vel) {
+	uint const idx = get_global_id(0);
 
-	float cubeRoot = cbrt((float)numParticles);
-	int largeIdx = idx / cubeRoot;
-	int smallIdx = fmod((float)idx, cubeRoot);
-	float lTheta = (largeIdx / (cubeRoot * cubeRoot)) * (M_PI * 2);
-	float sTheta = (smallIdx / cubeRoot) * (M_PI * 2);
-	pos->x = 0.5f * cos(sTheta);
-	pos->y = 0.5f * sin(sTheta);
-	pos->z = 0.0f;
+	float cubeRoot = cbrt((float)get_global_size(0));
+	uint largeIdx = idx / cubeRoot;
+	uint smallIdx = fmod((float)idx, cubeRoot);
+	float lTheta = (largeIdx / (cubeRoot * cubeRoot)) * (M_PI_F * 2);
+	float sTheta = (smallIdx / cubeRoot) * (M_PI_F * 2);
 
-	float tmpX = pos->x;
-	pos->x = cos(lTheta) * pos->x;
-	pos->z = -sin(lTheta) * tmpX;
+	float tmpX = 0.5f * cos(lTheta);
+	pos[idx].y = 0.5f * sin(lTheta);
 
-	initValues(particles, idx);
+	pos[idx].x = cos(sTheta) * tmpX;
+	pos[idx].z = -sin(sTheta) * tmpX;
+	pos[idx].w = 1.0f;
+	vel[idx] = (float4)(0);
 }
 
-__kernel void initFilledCube(__global Particle *particles, ulong const numParticles) {
-	__private int const idx = get_global_id(0);
-	__global float4 *pos = &(particles[idx].position);
+__kernel void initLongitudes(__global float4 *pos, __global float4 *vel) {
+	uint const idx = get_global_id(0);
 
-	float cubeRoot = cbrt((float)numParticles);
+	float cubeRoot = cbrt((float)get_global_size(0));
+	uint largeIdx = idx / cubeRoot;
+	uint smallIdx = fmod((float)idx, cubeRoot);
+	float lTheta = (largeIdx / (cubeRoot * cubeRoot)) * (M_PI_F * 2);
+	float sTheta = (smallIdx / cubeRoot) * (M_PI_F * 2);
 
-	int	x = fmod((float)idx, cubeRoot);
-	int	y = fmod((float)idx / cubeRoot, cubeRoot);
-	int	z = idx / (cubeRoot * cubeRoot);
+	float tmpX = 0.5f * cos(sTheta);
+	pos[idx].y = 0.5f * sin(sTheta);
 
-	float	invCubeRoot = 1.0f / cubeRoot;
-	float	centerCorrection = -0.5f + invCubeRoot / 2.0f;
-
-	pos->x = x * invCubeRoot + centerCorrection;
-	pos->y = y * invCubeRoot + centerCorrection;
-	pos->z = z * invCubeRoot + centerCorrection;
-
-	initValues(particles, idx);
+	pos[idx].x = cos(lTheta) * tmpX;
+	pos[idx].z = -sin(lTheta) * tmpX;
+	pos[idx].w = 1.0f;
+	vel[idx] = (float4)(0);
 }
-

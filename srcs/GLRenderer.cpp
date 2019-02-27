@@ -72,17 +72,12 @@ void GLRenderer::initMemory(size_t numParticles) {
   glGenBuffers(1, &VBO);
   glBindVertexArray(VAO);
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(Particle) * numParticles, nullptr,
+  glBufferData(GL_ARRAY_BUFFER, sizeof(cl_float4) * numParticles, nullptr,
                GL_DYNAMIC_DRAW);
 
   // Positions
   glEnableVertexAttribArray(0);
-  glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(Particle), nullptr);
-
-  // Velocities
-  glEnableVertexAttribArray(1);
-  glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Particle),
-                        (void *)(offsetof(Particle, velocity)));
+  glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(cl_float4), nullptr);
 
   glBindVertexArray(0);
 }

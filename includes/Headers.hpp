@@ -40,8 +40,3 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #define EPSILON 0.001f
-
-typedef struct {
-  cl_float4 position;
-  cl_float4 velocity;
-} Particle;
