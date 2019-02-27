@@ -7,7 +7,7 @@ __kernel void initSphere(__global float4 *pos, __global float4 *vel) {
 
 	float z = (1.0f - dz / 2.0f) - (dz * idx);
 	float l = dlong * idx;
-	float r = sqrt(1.0f - z * z);
+	float r = sqrt(1.0f - z * z) * 0.5f; // 0.5f is the expected sphere radius
 
 	pos[idx].x = cos(l) * r;
 	pos[idx].y = sin(l) * r;

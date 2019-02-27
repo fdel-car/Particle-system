@@ -25,8 +25,12 @@ int main(int argc, char **argv) {
   try {
     GLRenderer gl;
     CLContext cl(gl);
+
     size_t maxWorkGroupSize = cl.getMaxWorkGroupSize();
-    numParticles = (numParticles / maxWorkGroupSize + 1) * maxWorkGroupSize;
+    numParticles =
+        ceil((float)numParticles / (float)maxWorkGroupSize) * maxWorkGroupSize;
+    if (numParticles == 0) numParticles = maxWorkGroupSize;
+
     ParticleSystem ps(gl, cl, numParticles);
     ps.runLoop();
     return EXIT_SUCCESS;
