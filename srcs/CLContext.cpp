@@ -129,7 +129,13 @@ void CLContext::setParticles(size_t numParticles, char const *funcName) {
 void CLContext::updateParticles(size_t numParticles,
                                 glm::vec3 const gravityCenter,
                                 cl_uchar const gravityEnabled) {
-  _updateKernel->setArg(2, gravityCenter);
+  // Needed to avoid CL_INVALID_ARG_SIZE error on some system
+  cl_float3 toCLFormat;
+  toCLFormat.s[0] = gravityCenter.x;
+  toCLFormat.s[1] = gravityCenter.y;
+  toCLFormat.s[2] = gravityCenter.z;
+
+  _updateKernel->setArg(2, toCLFormat);
   _updateKernel->setArg(3, static_cast<float>(_gl.deltaTime));
   _updateKernel->setArg(4, gravityEnabled);
 
